@@ -9,7 +9,7 @@
 Official replication code for the paper:
 
 > **DyRA-IIoT: A Hybrid Framework for Asset-Aware Dynamic Risk Assessment in IIoT Networks**  
-> Akylbek Tokhmetov, Liliya Tanchenko, Mansiya Kantureyeva, Ainagul Alimagambetova  
+> Akylbek Tokhmetov, Aislu Kassekeyeva, Mansiya Kantureyeva, Liliya Tanchenko, Ainagul Alimagambetova  
 > *Journal of Information Security and Applications*, 2026  
 > DOI: [pending]
 
