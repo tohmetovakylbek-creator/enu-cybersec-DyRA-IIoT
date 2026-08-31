@@ -9,7 +9,6 @@ Reproduces:
   • Table 11 — OOD performance
   • Table 12 — Per-OOD-class recall
   • Table 13 — Leakage decomposition (TiDE, 3 seeds)
-  • Table 15 — Three-way protocol cross-check
 
 Usage (Edge-IIoTset):
   python scripts/train_all.py \\
@@ -26,6 +25,8 @@ Fast smoke-test (1 seed, 3 epochs, 20 % subsample):
   python scripts/train_all.py --data ... --fast
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
@@ -36,6 +37,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
+import yaml
 
 # ── make sure the package root is on sys.path ──────────────────────────────
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -76,6 +78,10 @@ def parse_args():
     p.add_argument("--dataset", choices=["edge", "ton_iot"], default="edge",
                    help="Dataset variant (edge=Edge-IIoTset, ton_iot=TON_IoT)")
     p.add_argument("--out",     default="results", help="Output directory")
+    p.add_argument("--config",  default=None,
+                   help="Path to dataset config YAML (default: "
+                        "configs/edge_iiotset.yaml or configs/ton_iot.yaml, "
+                        "picked automatically from --dataset, if present)")
     p.add_argument("--seeds",   nargs="+", type=int, default=None,
                    help="Random seeds (default: paper's 5 seeds)")
     p.add_argument("--backbones", nargs="+", default=None,
@@ -86,11 +92,56 @@ def parse_args():
                    help="1 seed / 3 epochs / 20 %% subsample — quick sanity check")
     p.add_argument("--skip-leakage",   action="store_true",
                    help="Skip leakage decomposition experiment")
-    p.add_argument("--skip-threeway",  action="store_true",
-                   help="Skip three-way cross-check (Table 15)")
     p.add_argument("--device",  default=None,
                    help="Force device: cpu / cuda (auto-detected by default)")
     return p.parse_args()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Dataset config (configs/*.yaml)
+# ─────────────────────────────────────────────────────────────────────────────
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+_DEFAULT_CONFIG_FOR_DATASET = {
+    "edge":     _REPO_ROOT / "configs" / "edge_iiotset.yaml",
+    "ton_iot":  _REPO_ROOT / "configs" / "ton_iot.yaml",
+}
+
+
+def load_dataset_config(dataset: str, explicit_path: str | None) -> dict:
+    """
+    Load dataset-specific overrides from configs/<dataset>.yaml (or an
+    explicit --config path) and apply them on top of dyra_iiot.config's
+    module-level defaults. Returns the raw dict (possibly empty).
+    """
+    cfg_path = Path(explicit_path) if explicit_path else _DEFAULT_CONFIG_FOR_DATASET[dataset]
+
+    if not cfg_path.is_file():
+        logger.info("No dataset config found at %s — using defaults from dyra_iiot.config", cfg_path)
+        return {}
+
+    with open(cfg_path) as f:
+        ds_cfg = yaml.safe_load(f) or {}
+    logger.info("Loaded dataset config: %s", cfg_path)
+
+    if "ood_classes" in ds_cfg:
+        ood_set = set(ds_cfg["ood_classes"])
+        if dataset == "edge":
+            C.OOD_CLASSES_EDGE = ood_set
+        else:
+            C.OOD_CLASSES_TON = ood_set
+    if "window_len" in ds_cfg:
+        C.WINDOW_LEN = int(ds_cfg["window_len"])
+    if "train_ratio" in ds_cfg:
+        C.TRAIN_RATIO = float(ds_cfg["train_ratio"])
+    if "batch_size" in ds_cfg:
+        C.BATCH_SIZE = int(ds_cfg["batch_size"])
+    if "epochs" in ds_cfg:
+        C.EPOCHS = int(ds_cfg["epochs"])
+    if "seeds" in ds_cfg:
+        C.SEEDS = list(ds_cfg["seeds"])
+
+    return ds_cfg
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -241,6 +292,8 @@ def main():
     args    = parse_args()
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    load_dataset_config(args.dataset, args.config)
 
     device    = args.device or C.get_device()
     seeds     = args.seeds  or C.SEEDS

@@ -1,0 +1,30 @@
+# configs/edge_iiotset.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+# Dataset-specific overrides for Edge-IIoTset (Section 4.1, Tables 2, 5, 11).
+# Loaded automatically by scripts/train_all.py when --dataset edge is used
+# (or explicitly via --config configs/edge_iiotset.yaml).
+# Any value present here overrides the corresponding default in
+# dyra_iiot/config.py; keys not present fall back to those defaults.
+# ─────────────────────────────────────────────────────────────────────────────
+
+dataset: edge
+
+# Label column expected in the raw CSV (see scripts/train_all.py::load_dataset)
+label_column: Attack_type
+
+# OOD held-out attack categories (Section 4.1.5 / Table 11)
+# — mirrors dyra_iiot.config.OOD_CLASSES_EDGE
+ood_classes:
+  - MITM
+  - Ransomware
+  - Backdoor
+  - Port_Scanning
+
+# Partitioning & windowing (Section 4.1.3-4.1.4)
+window_len: 50
+train_ratio: 0.80
+
+# Training protocol (Section 4.1.6)
+batch_size: 64
+epochs: 10
+seeds: [42, 123, 456, 789, 2024]

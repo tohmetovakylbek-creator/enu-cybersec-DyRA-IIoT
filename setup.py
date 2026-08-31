@@ -10,7 +10,7 @@ setup(
     author="Akylbek Tokhmetov, Mansiya Kantureyeva, Liliya Tanchenko, "
            "Ainagul Alimagambetova",
     author_email="tokhmetov_ab@enu.kz",
-    url="https://github.com/enu-cybersec/DyRA-IIoT",
+    url="https://github.com/alykbek/enu-cybersec-DyRA-IIoT",
     packages=find_packages(),
     python_requires=">=3.9",
     install_requires=[

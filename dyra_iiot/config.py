@@ -5,7 +5,7 @@ Central configuration.  Every hyperparameter used in the paper is defined
 here with a reference to the section/table where it appears.
 
 Import pattern:
-    from dyra_iiot.config import CFG
+    import dyra_iiot.config as C
 """
 
 from dataclasses import dataclass, field

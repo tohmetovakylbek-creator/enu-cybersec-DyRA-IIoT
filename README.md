@@ -2,7 +2,7 @@
 
 **A Hybrid Framework for Asset-Aware Dynamic Risk Assessment in IIoT Networks**
 
-[![CI](https://github.com/enu-cybersec/DyRA-IIoT/actions/workflows/ci.yml/badge.svg)](https://github.com/enu-cybersec/DyRA-IIoT/actions)
+[![CI](https://github.com/alykbek/enu-cybersec-DyRA-IIoT/actions/workflows/ci.yml/badge.svg)](https://github.com/alykbek/enu-cybersec-DyRA-IIoT/actions)
 [![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11-blue)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -84,8 +84,8 @@ Download `DNN-EdgeIIoT-dataset.csv` and `TON_IoT_Train_Test_Network.csv` and pla
 ### Option A — pip (local)
 
 ```bash
-git clone https://github.com/enu-cybersec/DyRA-IIoT.git
-cd DyRA-IIoT
+git clone https://github.com/alykbek/enu-cybersec-DyRA-IIoT.git
+cd enu-cybersec-DyRA-IIoT
 pip install -e .
 
 # Smoke test (1 seed, 3 epochs, 20 % subsample — ~5 min on CPU)
@@ -136,8 +136,7 @@ docker run -v /your/data:/data dyra-iiot-cpu \
 ```bash
 python scripts/train_all.py \
     --data  /path/to/DNN-EdgeIIoT-dataset.csv \
-    --out   results/edge_iiotset \
-    --skip-threeway    # optional: skip 3-way cross-check
+    --out   results/edge_iiotset
 ```
 
 Output: `results/edge_iiotset/in_dist_results.csv`
